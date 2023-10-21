@@ -10,3 +10,4 @@
 /*.csproj
 /*.sln
 /UpgradeLog.htm
+/mono_crash.*.json

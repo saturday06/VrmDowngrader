@@ -62,7 +62,6 @@ namespace VrmDowngrader
                 button.SetEnabled(true);
                 return;
             }
-            using var _ = vrm10Instance.Runtime;
 
             button.text = "OK";
             Debug.Log("インポートはうまくいきました");
@@ -70,18 +69,46 @@ namespace VrmDowngrader
             Debug.Log("VRM1のコンポーネントをVRM0で置換していきます");
             // https://github.com/vrm-c/UniVRM/blob/7e052b19b3c0b4cd02e63159fc37db820729554e/Assets/VRM10/Runtime/Migration/MigrationVrmMeta.cs
             var vrm1Meta = vrm10Instance.Vrm.Meta;
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 1");
             var vrm0Meta = vrm10Instance.gameObject.AddComponent<VRMMeta>().Meta;
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 2");
             vrm0Meta.Title = vrm1Meta.Name;
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 3");
             vrm0Meta.Author = string.Join("/ ", vrm1Meta.Authors);
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 4");
             vrm0Meta.Version = vrm1Meta.Version;
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 5");
 
             Debug.Log("エクスポートします");
+            var configuration = new UniGLTF.GltfExportSettings();
+            var textureSerializer = new RuntimeTextureSerializer();
+            byte[] outputVrm0Bytes;
+            {
+                var exportingGltfData = VRMExporter.Export(
+                    configuration,
+                    vrm10Instance.gameObject,
+                    textureSerializer
+                );
+                outputVrm0Bytes = exportingGltfData.ToGlbBytes();
+            }
+
+            Debug.LogFormat("エクスポートしました {0} bytes", outputVrm0Bytes.Length);
         }
 
         private void Start()
         {
             var startButton = GetComponent<UIDocument>().rootVisualElement.Query<Button>().First();
-            startButton.clicked += () => _ = OnStartButtonClicked(startButton);
+            startButton.clicked += () =>
+            {
+                try
+                {
+                    _ = OnStartButtonClicked(startButton);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            };
         }
     }
 }

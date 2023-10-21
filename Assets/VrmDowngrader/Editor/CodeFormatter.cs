@@ -19,7 +19,7 @@ namespace VrmDowngrader.Editor
                     new ProcessStartInfo
                     {
                         FileName = "dotnet",
-                        ArgumentList = {"csharpier", assetPath},
+                        ArgumentList = { "csharpier", assetPath },
                         UseShellExecute = false,
                         CreateNoWindow = true,
                     }

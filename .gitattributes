@@ -1,0 +1,18 @@
+* -text
+*.asmdef text eol=crlf
+*.asset text eol=lf
+*.cginc text eol=lf
+*.cs text eol=crlf
+*.hlsl text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.meta text eol=lf
+*.shader text eol=lf
+*.txt text eol=lf
+*.unity text eol=lf
+*.uxml text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+.* text eol=lf
+csc.rsp text eol=lf

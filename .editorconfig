@@ -9,7 +9,7 @@ indent_style = space
 tab_width = 4
 trim_trailing_whitespace = true
 
-[*.{blend,gif,ico,jpg,png,pptx,meta,asset,unity,tss,uss,uxml}]
+[*.{blend,gif,ico,jpg,png,pptx,meta,asset,unity,tss,uss,uxml,asmdef,xsd}]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
@@ -17,10 +17,6 @@ indent_size = unset
 indent_style = unset
 tab_width = unset
 trim_trailing_whitespace = unset
-
-[*.asmdef]
-end_of_line = crlf
-trim_trailing_whitespace = false
 
 [*.cs]
 end_of_line = crlf
@@ -38,7 +34,7 @@ csharp_new_line_before_finally = true
 
 # ここは正しくマッチする設定が無いので :none を付けて無視する
 # https://github.com/belav/csharpier/issues/781#issuecomment-1615065350
-csharp_new_line_before_open_brace = all:none
+# csharp_new_line_before_open_brace = all
 
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_before_members_in_object_initializers = true
@@ -99,6 +95,9 @@ end_of_line = crlf
 indent_size = 2
 
 [*.sh]
+indent_size = 2
+
+[*.json]
 indent_size = 2
 
 [*.{yml,yaml}]

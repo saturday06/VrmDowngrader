@@ -31,14 +31,27 @@ namespace VrmDowngrader
             EditorSceneManager.OpenScene(scene.path);
         }
 
-        void OnPreprocessAsset()
+        private static void OnPostprocessAllAssets(
+            string[] importedAssets,
+            string[] deletedAssets,
+            string[] movedAssets,
+            string[] movedFromAssetPaths,
+            bool didDomainReload
+        )
         {
-            if (!assetPath.StartsWith("Assets/") || !assetPath.EndsWith(".unity"))
+            foreach (
+                var asset in importedAssets
+                    .Concat(deletedAssets)
+                    .Concat(movedAssets)
+                    .Concat(movedFromAssetPaths)
+            )
             {
-                return;
+                if (!asset.StartsWith("Assets/") || !asset.EndsWith(".unity"))
+                {
+                    CreateSceneBuildIndexSource();
+                    return;
+                }
             }
-
-            CreateSceneBuildIndexSource();
         }
 
         [MenuItem("Tools/Create Scene Build Index Source")]
@@ -58,15 +71,19 @@ namespace VrmDowngrader
             foreach (
                 var (sceneName, index) in EditorBuildSettings.scenes
                     .Where(scene => scene.enabled)
-                    .Select((scene, index) =>
-                    {
-                        var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(scene.path);
-                        if (asset == null)
+                    .Select(
+                        (scene, index) =>
                         {
-                            throw new FileNotFoundException($"EditorBuildSettingsに登録されているシーン {scene.path} が見つかりません");
+                            var asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(scene.path);
+                            if (asset == null)
+                            {
+                                throw new FileNotFoundException(
+                                    $"EditorBuildSettingsに登録されているシーン {scene.path} が見つかりません"
+                                );
+                            }
+                            return (asset.name, index);
                         }
-                        return (asset.name, index);
-                    })
+                    )
             )
             {
                 if (!new Regex("\\A[A-Za-z0-9]+\\Z").IsMatch(sceneName))

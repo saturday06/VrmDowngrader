@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using UnityEditor;
 
-namespace UrpScreenshot
+namespace VrmDowngrader.Editor
 {
     public class CodeFormatter : AssetPostprocessor
     {

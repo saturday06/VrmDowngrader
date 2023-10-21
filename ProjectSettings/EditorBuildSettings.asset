@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/VrmDowngrader/VrmDowngraderScene.unity
     guid: 00ed2cec47915f244b685954e97eada8
+  - enabled: 1
+    path: Assets/VrmDowngrader/CleanupScene.unity
+    guid: ae16a4adb09534d3a8c68f3025e75e81
   m_configObjects: {}

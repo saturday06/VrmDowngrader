@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UniVRM10;
+using VRM;
 using VRMShaders;
 
 namespace VrmDowngrader
@@ -61,9 +62,20 @@ namespace VrmDowngrader
                 button.SetEnabled(true);
                 return;
             }
+            using var _ = vrm10Instance.Runtime;
 
             button.text = "OK";
-            Debug.Log("うまくいきました");
+            Debug.Log("インポートはうまくいきました");
+
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます");
+            // https://github.com/vrm-c/UniVRM/blob/7e052b19b3c0b4cd02e63159fc37db820729554e/Assets/VRM10/Runtime/Migration/MigrationVrmMeta.cs
+            var vrm1Meta = vrm10Instance.Vrm.Meta;
+            var vrm0Meta = vrm10Instance.gameObject.AddComponent<VRMMeta>().Meta;
+            vrm0Meta.Title = vrm1Meta.Name;
+            vrm0Meta.Author = string.Join("/ ", vrm1Meta.Authors);
+            vrm0Meta.Version = vrm1Meta.Version;
+
+            Debug.Log("エクスポートします");
         }
 
         private void Start()

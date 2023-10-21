@@ -1,13 +1,18 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UniVRM10;
 using VRMShaders;
 
+[RequireComponent(typeof(UIDocument))]
 public class VrmDowngrader : MonoBehaviour
 {
-    private async void Start()
+    private async Task OnStartButtonClicked(Button button)
     {
+        button.text = "Loading...";
+        button.SetEnabled(false);
         Debug.Log("開始");
         var taskCompletionSource = new TaskCompletionSource<bool>();
         Debug.Log("リソースのロード開始");
@@ -27,20 +32,38 @@ public class VrmDowngrader : MonoBehaviour
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
 
-        var vrm10Instance = await Vrm10.LoadBytesAsync(
-            vrmBytes,
-            canLoadVrm0X: false,
-            showMeshes: true,
-            awaitCaller: new ImmediateCaller(),
-            ct: cancellationToken
-        );
-
-        if (vrm10Instance == null)
+        Vrm10Instance vrm10Instance;
+        try
         {
-            Debug.LogWarning("LoadPathAsync is null");
+            vrm10Instance = await Vrm10.LoadBytesAsync(
+                vrmBytes,
+                canLoadVrm0X: false,
+                showMeshes: true,
+                awaitCaller: new ImmediateCaller(),
+                ct: cancellationToken
+            );
+            if (vrm10Instance == null)
+            {
+                Debug.LogWarning("LoadPathAsync is null");
+                button.text = "Error 1";
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+            button.text = "Error 2";
             return;
         }
 
+
+        button.text = "OK";
         Debug.Log("うまくいきました");
+    }
+
+    private void Start()
+    {
+        var startButton = GetComponent<UIDocument>().rootVisualElement.Query<Button>().First();
+        startButton.clicked += () => _ = OnStartButtonClicked(startButton);
     }
 }

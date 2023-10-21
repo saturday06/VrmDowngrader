@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using UnityEditor;
 
@@ -12,15 +13,28 @@ namespace VrmDowngrader.Editor
                 return;
             }
 
-            using var process = Process.Start(
-                new ProcessStartInfo
+            try
+            {
+                using var process = Process.Start(
+                    new ProcessStartInfo
+                    {
+                        FileName = "dotnet",
+                        ArgumentList = {"csharpier", assetPath},
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                    }
+                );
+            }
+            catch (Win32Exception e)
+            {
+#if UNITY_EDITOR_OSX
+                if (e.NativeErrorCode == 2)
                 {
-                    FileName = "dotnet",
-                    ArgumentList = { "csharpier", assetPath },
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
+                    return;
                 }
-            );
+#endif
+                throw;
+            }
         }
     }
 }

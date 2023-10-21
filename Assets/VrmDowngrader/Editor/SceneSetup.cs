@@ -89,7 +89,7 @@ namespace VrmDowngrader
                 "SceneBuildIndex.g.cs"
             );
             var sceneBuildIndexSourceBytes = Encoding.UTF8.GetBytes(
-                sceneBuildIndexSourceBuilder.ToString().Replace("\r\n", "\n")
+                sceneBuildIndexSourceBuilder.ToString().Replace("\r\n", "\n").Replace("\n", "\r\n")
             );
             var oldSceneBuildIndexSourceBytes = File.ReadAllBytes(sceneBuildIndexSourcePath);
             if (sceneBuildIndexSourceBytes != oldSceneBuildIndexSourceBytes)

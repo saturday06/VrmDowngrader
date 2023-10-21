@@ -6,5 +6,7 @@
 /Temp/
 /UserSettings/
 /obj/
+/.vsconfig
 /*.csproj
 /*.sln
+/UpgradeLog.htm

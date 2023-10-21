@@ -32,8 +32,13 @@ namespace VrmDowngrader.Editor
                 {
                     return;
                 }
+#elif UNITY_EDITOR_WIN
+                if (e.NativeErrorCode == 2)
+                {
+                    return;
+                }
 #endif
-                throw;
+                throw e;
             }
         }
     }

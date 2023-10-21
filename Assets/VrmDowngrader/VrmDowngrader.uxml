@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/VrmDowngrader/VrmDowngrader.uss?fileID=7433441132597879392&amp;guid=6c6a68307760a7344a9a34d7255b1c87&amp;type=3#VrmDowngrader" />
+    <ui:Label tabindex="-1" text="Hello!" parse-escape-sequences="true" display-tooltip-when-elided="true" style="left: 0; top: 0; right: 0; bottom: 0; position: absolute; -unity-text-align: lower-left; font-size: 32px; color: rgb(233, 233, 233);" />
+</ui:UXML>

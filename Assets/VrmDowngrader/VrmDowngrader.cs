@@ -38,10 +38,9 @@ namespace VrmDowngrader
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            Vrm10Instance? vrm10Instance = null;
             try
             {
-                vrm10Instance = await Vrm10.LoadBytesAsync(
+                var vrm10Instance = await Vrm10.LoadBytesAsync(
                     vrmBytes,
                     canLoadVrm0X: false,
                     showMeshes: true,

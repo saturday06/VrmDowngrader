@@ -1,5 +1,6 @@
 <linker>
   <!-- UniVRM -->
+  <!--
   <assembly fullname="FastSpringBone" preserve="all"/>
   <assembly fullname="FastSpringBone10" preserve="all"/>
   <assembly fullname="MToon" preserve="all"/>
@@ -14,4 +15,5 @@
   <assembly fullname="VRMShaders.VRM10.Format.Runtime" preserve="all"/>
   <assembly fullname="VRMShaders.VRM10.MToon10.Runtime" preserve="all"/>
   <assembly fullname="VrmLib" preserve="all"/>
+  -->
 </linker>

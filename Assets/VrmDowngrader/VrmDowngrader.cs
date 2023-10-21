@@ -104,11 +104,11 @@ namespace VrmDowngrader
         private void Start()
         {
             var startButton = GetComponent<UIDocument>().rootVisualElement.Query<Button>().First();
-            startButton.clicked += () =>
+            startButton.clicked += async () =>
             {
                 try
                 {
-                    _ = OnStartButtonClicked(startButton);
+                    await OnStartButtonClicked(startButton);
                 }
                 catch (Exception e)
                 {

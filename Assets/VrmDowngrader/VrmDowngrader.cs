@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using UniVRM10;
 using VRM;
@@ -37,7 +38,7 @@ namespace VrmDowngrader
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            Vrm10Instance vrm10Instance;
+            Vrm10Instance? vrm10Instance = null;
             try
             {
                 vrm10Instance = await Vrm10.LoadBytesAsync(
@@ -54,45 +55,50 @@ namespace VrmDowngrader
                     button.SetEnabled(true);
                     return;
                 }
+                button.text = "OK";
+                Debug.Log("インポートはうまくいきました");
+
+                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます");
+                // https://github.com/vrm-c/UniVRM/blob/7e052b19b3c0b4cd02e63159fc37db820729554e/Assets/VRM10/Runtime/Migration/MigrationVrmMeta.cs
+                var vrm0Meta = ScriptableObject.CreateInstance<VRMMetaObject>();
+                var vrm1Meta = vrm10Instance.Vrm.Meta;
+                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 1");
+                // var vrm0Meta = VRMMeta.
+                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 2");
+                vrm0Meta.Title = vrm1Meta.Name;
+                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 3");
+                vrm0Meta.Author = string.Join("/ ", vrm1Meta.Authors);
+                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 4");
+                vrm0Meta.Version = vrm1Meta.Version;
+                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 5");
+                var vrm0MetaComponent = vrm10Instance.gameObject.AddComponent<VRMMeta>();
+                vrm0MetaComponent.Meta = vrm0Meta;
+
+                Debug.Log("エクスポートします");
+                var configuration = new UniGLTF.GltfExportSettings();
+                var textureSerializer = new RuntimeTextureSerializer();
+                byte[] outputVrm0Bytes;
+                {
+                    var exportingGltfData = VRMExporter.Export(
+                        configuration,
+                        vrm10Instance.gameObject,
+                        textureSerializer
+                    );
+                    outputVrm0Bytes = exportingGltfData.ToGlbBytes();
+                }
+
+                Debug.LogFormat("エクスポートしました {0} bytes", outputVrm0Bytes.Length);
             }
             catch (Exception e)
             {
                 Debug.LogException(e);
                 button.text = "Error 2 / Restart";
                 button.SetEnabled(true);
-                return;
             }
 
-            button.text = "OK";
-            Debug.Log("インポートはうまくいきました");
-
-            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます");
-            // https://github.com/vrm-c/UniVRM/blob/7e052b19b3c0b4cd02e63159fc37db820729554e/Assets/VRM10/Runtime/Migration/MigrationVrmMeta.cs
-            var vrm1Meta = vrm10Instance.Vrm.Meta;
-            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 1");
-            var vrm0Meta = vrm10Instance.gameObject.AddComponent<VRMMeta>().Meta;
-            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 2");
-            vrm0Meta.Title = vrm1Meta.Name;
-            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 3");
-            vrm0Meta.Author = string.Join("/ ", vrm1Meta.Authors);
-            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 4");
-            vrm0Meta.Version = vrm1Meta.Version;
-            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 5");
-
-            Debug.Log("エクスポートします");
-            var configuration = new UniGLTF.GltfExportSettings();
-            var textureSerializer = new RuntimeTextureSerializer();
-            byte[] outputVrm0Bytes;
-            {
-                var exportingGltfData = VRMExporter.Export(
-                    configuration,
-                    vrm10Instance.gameObject,
-                    textureSerializer
-                );
-                outputVrm0Bytes = exportingGltfData.ToGlbBytes();
-            }
-
-            Debug.LogFormat("エクスポートしました {0} bytes", outputVrm0Bytes.Length);
+            // 不要なメモリを解放したいが、正直なんもわからんのでシーン遷移してUnloadUnusedAssetsをしてしまう
+            // TODO: プログラマとしての矜持は無いのか!!!???
+            SceneManager.LoadScene(SceneBuildIndex.CleanupScene);
         }
 
         private void Start()

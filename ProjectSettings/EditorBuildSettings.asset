@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/VrmDowngrader/VrmDowngrader.unity
+    path: Assets/VrmDowngrader/VrmDowngraderScene.unity
     guid: 00ed2cec47915f244b685954e97eada8
   m_configObjects: {}

@@ -126,7 +126,6 @@ namespace VrmDowngrader
         {
             if (_vrm0Bytes == null)
             {
-                ResetScene();
                 return;
             }
 #if UNITY_EDITOR
@@ -145,7 +144,6 @@ namespace VrmDowngrader
 #elif UNITY_WEBGL
             WebBrowserVrm1Save(_vrm0Bytes, _vrm0Bytes.Length);
 #endif
-            ResetScene();
         }
 
         [DllImport("__Internal")]

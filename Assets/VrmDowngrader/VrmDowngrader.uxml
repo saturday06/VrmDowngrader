@@ -1,4 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/VrmDowngrader/VrmDowngrader.uss?fileID=7433441132597879392&amp;guid=6c6a68307760a7344a9a34d7255b1c87&amp;type=3#VrmDowngrader" />
-    <ui:Button text="Start!" parse-escape-sequences="true" display-tooltip-when-elided="true" style="position: absolute; bottom: 0; right: 0; left: 0; font-size: 32px;" />
+    <ui:VisualElement name="VisualElement" style="top: 40%; display: flex;">
+        <ui:Label tabindex="-1" text="VRM Downgrader" parse-escape-sequences="true" display-tooltip-when-elided="true" style="color: rgb(233, 233, 233); font-size: 32px; -unity-text-align: upper-center; -unity-font-style: bold;" />
+        <ui:Button text="Open VRM1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="OpenButton" style="font-size: 32px; -unity-font-style: normal;" />
+        <ui:Button text="Save VRM0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="SaveButton" style="font-size: 32px; -unity-font-style: normal; display: none;" />
+        <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ErrorMessageLabel" style="font-size: 12px; color: rgb(255, 142, 0);" />
+    </ui:VisualElement>
 </ui:UXML>

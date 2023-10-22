@@ -1,8 +1,12 @@
 using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 using UniVRM10;
 using VRM;
@@ -13,35 +17,39 @@ namespace VrmDowngrader
     [RequireComponent(typeof(UIDocument))]
     public class VrmDowngrader : MonoBehaviour
     {
-        private async Task OnStartButtonClicked(Button button)
-        {
-            button.text = "Loading...";
-            button.SetEnabled(false);
-            Debug.Log("開始");
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-            Debug.Log("リソースのロード開始");
-            var textAssetRequest = Resources.LoadAsync<TextAsset>("Seed-san.vrm");
-            textAssetRequest.completed += _ => taskCompletionSource.SetResult(true);
-            await taskCompletionSource.Task;
-            Debug.Log("リソースのロード完了");
-            var textAsset = textAssetRequest.asset as TextAsset;
-            if (textAsset == null)
-            {
-                Debug.Log("リソースのロードに失敗");
-                button.text = "Error 0 / Restart";
-                button.SetEnabled(true);
-                return;
-            }
-            var vrmBytes = textAsset.bytes;
-            Debug.Log("VRMのバイト配列の取得完了");
+        private Button? _openButton;
+        private Button OpenButton =>
+            _openButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("OpenButton");
 
+        private Button? _saveButton;
+        private Button SaveButton =>
+            _saveButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("SaveButton");
+
+        private Label? _errorMessageLabel;
+        private Label ErrorMessageLabel =>
+            _errorMessageLabel ??= GetComponent<UIDocument>().rootVisualElement.Q<Label>(
+                "ErrorMessageLabel"
+            );
+
+        private byte[]? _vrm0Bytes;
+
+        private async Task OnOpenButtonClicked(byte[] vrm1Bytes)
+        {
+            ErrorMessageLabel.text = "";
+            var logoLabel = GetComponent<UIDocument>().rootVisualElement.Q<Label>();
+            logoLabel.text = "";
+            OpenButton.text = "loading...";
+            await WebGL.WaitForNextFrame();
+
+            Debug.Log("開始");
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
+            Vrm10Instance vrm10Instance;
             try
             {
-                var vrm10Instance = await Vrm10.LoadBytesAsync(
-                    vrmBytes,
+                vrm10Instance = await Vrm10.LoadBytesAsync(
+                    vrm1Bytes,
                     canLoadVrm0X: false,
                     showMeshes: true,
                     awaitCaller: new ImmediateCaller(),
@@ -49,52 +57,127 @@ namespace VrmDowngrader
                 );
                 if (vrm10Instance == null)
                 {
-                    Debug.LogWarning("LoadPathAsync is null");
-                    button.text = "Error 1 / Restart";
-                    button.SetEnabled(true);
+                    OpenButton.SetEnabled(true);
+                    OpenButton.text = "Open VRM1";
+                    ErrorMessageLabel.text = "LoadPathAsync is null";
                     return;
                 }
-                button.text = "OK";
+                OpenButton.style.display = DisplayStyle.None;
                 Debug.Log("インポートはうまくいきました");
-
-                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます");
-                // https://github.com/vrm-c/UniVRM/blob/7e052b19b3c0b4cd02e63159fc37db820729554e/Assets/VRM10/Runtime/Migration/MigrationVrmMeta.cs
-                var vrm0Meta = ScriptableObject.CreateInstance<VRMMetaObject>();
-                var vrm1Meta = vrm10Instance.Vrm.Meta;
-                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 1");
-                // var vrm0Meta = VRMMeta.
-                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 2");
-                vrm0Meta.Title = vrm1Meta.Name;
-                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 3");
-                vrm0Meta.Author = string.Join("/ ", vrm1Meta.Authors);
-                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 4");
-                vrm0Meta.Version = vrm1Meta.Version;
-                Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 5");
-                var vrm0MetaComponent = vrm10Instance.gameObject.AddComponent<VRMMeta>();
-                vrm0MetaComponent.Meta = vrm0Meta;
-
-                Debug.Log("エクスポートします");
-                var configuration = new UniGLTF.GltfExportSettings();
-                var textureSerializer = new RuntimeTextureSerializer();
-                byte[] outputVrm0Bytes;
-                {
-                    var exportingGltfData = VRMExporter.Export(
-                        configuration,
-                        vrm10Instance.gameObject,
-                        textureSerializer
-                    );
-                    outputVrm0Bytes = exportingGltfData.ToGlbBytes();
-                }
-
-                Debug.LogFormat("エクスポートしました {0} bytes", outputVrm0Bytes.Length);
             }
             catch (Exception e)
             {
                 Debug.LogException(e);
-                button.text = "Error 2 / Restart";
-                button.SetEnabled(true);
+
+                OpenButton.SetEnabled(true);
+                OpenButton.text = "Open VRM1";
+                ErrorMessageLabel.text = e.ToString();
+                return;
             }
 
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます");
+            // https://github.com/vrm-c/UniVRM/blob/7e052b19b3c0b4cd02e63159fc37db820729554e/Assets/VRM10/Runtime/Migration/MigrationVrmMeta.cs
+            var vrm0Meta = ScriptableObject.CreateInstance<VRMMetaObject>();
+            var vrm1Meta = vrm10Instance.Vrm.Meta;
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 1");
+            // var vrm0Meta = VRMMeta.
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 2");
+            vrm0Meta.Title = vrm1Meta.Name;
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 3");
+            vrm0Meta.Author = string.Join("/ ", vrm1Meta.Authors);
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 4");
+            vrm0Meta.Version = vrm1Meta.Version;
+            Debug.Log("VRM1のコンポーネントをVRM0で置換していきます 5");
+            var vrm0MetaComponent = vrm10Instance.gameObject.AddComponent<VRMMeta>();
+            vrm0MetaComponent.Meta = vrm0Meta;
+
+            Debug.Log("エクスポートします");
+            var configuration = new UniGLTF.GltfExportSettings();
+            var textureSerializer = new RuntimeTextureSerializer();
+            var exportingGltfData = VRMExporter.Export(
+                configuration,
+                vrm10Instance.gameObject,
+                textureSerializer
+            );
+            var vrm0Bytes = exportingGltfData.ToGlbBytes();
+
+            Debug.LogFormat("エクスポートしました {0} bytes", vrm0Bytes.Length);
+#if UNITY_EDITOR
+            SaveButton.style.display = DisplayStyle.Flex;
+            _vrm0Bytes = vrm0Bytes;
+#elif UNITY_WEBGL
+            WebBrowserVrm1Save(vrm0Bytes, vrm0Bytes.Length);
+#endif
+        }
+
+        private void OnSaveButtonClicked()
+        {
+#if UNITY_EDITOR
+            var path = UnityEditor.EditorUtility.SaveFilePanel(
+                "Save VRM0",
+                "",
+                "output.vrm",
+                "vrm"
+            );
+            if (path != null)
+            {
+                File.WriteAllBytes(path, _vrm0Bytes);
+            }
+            ResetScene();
+#endif
+        }
+
+        [DllImport("__Internal")]
+        public static extern void WebBrowserVrm0Open();
+
+        [DllImport("__Internal")]
+        public static extern void WebBrowserVrm1Save(byte[] bytes, int bytesLength);
+
+        [Preserve] // WebBrowser側からコールバックを受け取りたい
+        public void WebBrowserResetSceneRequested(string _url)
+        {
+            ResetScene();
+        }
+
+        [Preserve] // WebBrowser側からコールバックを受け取りたい
+        public void WebBrowserVrm0Opened(string url)
+        {
+            Debug.LogFormat($"WebBrowserVrm0Opened {url}");
+
+            // 関数分けたほうが良いかな
+            _ = Task.Factory.StartNew(
+                async () =>
+                {
+                    byte[] vrm1Bytes;
+                    using (var unityWebRequest = UnityWebRequest.Get(url))
+                    {
+                        var taskCompletionSource = new TaskCompletionSource<bool>();
+                        unityWebRequest.SendWebRequest().completed += _ =>
+                        {
+                            taskCompletionSource.SetResult(true);
+                        };
+                        await taskCompletionSource.Task;
+                        if (unityWebRequest.result != UnityWebRequest.Result.Success)
+                        {
+                            Debug.LogErrorFormat(
+                                "UnityWebRequest failed: {0}",
+                                unityWebRequest.result
+                            );
+                            ResetScene();
+                            return;
+                        }
+                        vrm1Bytes = unityWebRequest.downloadHandler.data;
+                    }
+                    _ = OnOpenButtonClicked(vrm1Bytes);
+                },
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                TaskScheduler.FromCurrentSynchronizationContext()
+            );
+        }
+
+        private void ResetScene()
+        {
             // 不要なメモリを解放したいが、正直なんもわからんのでシーン遷移してUnloadUnusedAssetsをしてしまう
             // TODO: プログラマとしての矜持は無いのか!!!???
             SceneManager.LoadScene(SceneBuildIndex.CleanupScene);
@@ -102,12 +185,38 @@ namespace VrmDowngrader
 
         private void Start()
         {
-            var startButton = GetComponent<UIDocument>().rootVisualElement.Query<Button>().First();
-            startButton.clicked += async () =>
+            OpenButton.clicked += () =>
             {
                 try
                 {
-                    await OnStartButtonClicked(startButton);
+                    OpenButton.SetEnabled(false); // 二重クリック防止のため確実にここに書く
+#if UNITY_EDITOR
+                    var path = UnityEditor.EditorUtility.OpenFilePanel("Open VRM1", "", "vrm");
+                    if (path == null)
+                    {
+                        ResetScene();
+                        return;
+                    }
+                    var vrm1Bytes = System.IO.File.ReadAllBytes(path);
+                    _ = OnOpenButtonClicked(vrm1Bytes);
+#elif UNITY_WEBGL
+                    WebBrowserVrm0Open();
+#else
+                    // TODO:
+#endif
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    ErrorMessageLabel.text = e.ToString();
+                }
+            };
+            SaveButton.clicked += () =>
+            {
+                try
+                {
+                    SaveButton.SetEnabled(false); // 二重クリック防止のため確実にここに書く
+                    OnSaveButtonClicked();
                 }
                 catch (Exception e)
                 {

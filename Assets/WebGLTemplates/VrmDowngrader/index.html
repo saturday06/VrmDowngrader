@@ -16,11 +16,13 @@
     <link rel="stylesheet" href="TemplateData/style.css">
 #if SHOW_DIAGNOSTICS
     <link rel="stylesheet" href="<<<TemplateData/diagnostics.css>>>">
-    <script src="<<<TemplateData/diagnostics.js>>>"></script>
 #endif
   </head>
   <body>
-    <div id="unity-container" 
+#if SHOW_DIAGNOSTICS
+    <script src="<<<TemplateData/diagnostics.js>>>"></script>
+#endif
+    <div id="unity-container"
       class="unity-desktop"
       style="
         position: absolute;

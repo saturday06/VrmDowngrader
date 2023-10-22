@@ -40,8 +40,16 @@
       <canvas
         id="unity-canvas"
         style="
+          position: absolute;
+          left: 0px;
+          right: 0px;
+          top: 0px;
+          bottom: 0px;
           width: 100%;
           height: 100%;
+          margin: 0;
+          padding: 0;
+          transform: none;
           background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}};
         "
         tabindex="-1">
@@ -57,7 +65,7 @@
         <div id="unity-webgl-logo" style="display: none;"></div>
         <div id="unity-fullscreen-button" style="display: none;"></div>
 #if SHOW_DIAGNOSTICS
-        <img id="diagnostics-icon" src="TemplateData/webmemd-icon.png">
+        <img id="diagnostics-icon" src="TemplateData/webmemd-icon.png" alt="Diagnostics">
 #endif
         <div id="unity-build-title" style="display: none;">{{{ PRODUCT_NAME }}}</div>
       </div>

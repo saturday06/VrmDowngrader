@@ -99,19 +99,19 @@ namespace VrmDowngrader
                 vrm10Instance.gameObject,
                 textureSerializer
             );
-            var vrm0Bytes = exportingGltfData.ToGlbBytes();
+            _vrm0Bytes = exportingGltfData.ToGlbBytes();
 
-            Debug.LogFormat("エクスポートしました {0} bytes", vrm0Bytes.Length);
-#if UNITY_EDITOR
+            Debug.LogFormat("エクスポートしました {0} bytes", _vrm0Bytes.Length);
             SaveButton.style.display = DisplayStyle.Flex;
-            _vrm0Bytes = vrm0Bytes;
-#elif UNITY_WEBGL
-            WebBrowserVrm1Save(vrm0Bytes, vrm0Bytes.Length);
-#endif
         }
 
         private void OnSaveButtonClicked()
         {
+            if (_vrm0Bytes == null)
+            {
+                ResetScene();
+                return;
+            }
 #if UNITY_EDITOR
             var path = UnityEditor.EditorUtility.SaveFilePanel(
                 "Save VRM0",
@@ -119,12 +119,16 @@ namespace VrmDowngrader
                 "output.vrm",
                 "vrm"
             );
-            if (path != null)
+            if (string.IsNullOrEmpty(path))
             {
-                File.WriteAllBytes(path, _vrm0Bytes);
+                SaveButton.SetEnabled(true);
+                return;
             }
-            ResetScene();
+            File.WriteAllBytes(path, _vrm0Bytes);
+#elif UNITY_WEBGL
+            WebBrowserVrm1Save(_vrm0Bytes, _vrm0Bytes.Length);
 #endif
+            ResetScene();
         }
 
         [DllImport("__Internal")]
@@ -132,12 +136,6 @@ namespace VrmDowngrader
 
         [DllImport("__Internal")]
         public static extern void WebBrowserVrm1Save(byte[] bytes, int bytesLength);
-
-        [Preserve] // WebBrowser側からコールバックを受け取りたい
-        public void WebBrowserResetSceneRequested(string _url)
-        {
-            ResetScene();
-        }
 
         [Preserve] // WebBrowser側からコールバックを受け取りたい
         public void WebBrowserVrm0Opened(string url)
@@ -192,7 +190,7 @@ namespace VrmDowngrader
                     OpenButton.SetEnabled(false); // 二重クリック防止のため確実にここに書く
 #if UNITY_EDITOR
                     var path = UnityEditor.EditorUtility.OpenFilePanel("Open VRM1", "", "vrm");
-                    if (path == null)
+                    if (string.IsNullOrEmpty(path))
                     {
                         ResetScene();
                         return;

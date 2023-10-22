@@ -5,7 +5,7 @@ namespace VrmDowngrader
 {
     public class Cleanup : MonoBehaviour
     {
-        void Start()
+        private void Start()
         {
             Resources.UnloadUnusedAssets().completed += _ =>
             {

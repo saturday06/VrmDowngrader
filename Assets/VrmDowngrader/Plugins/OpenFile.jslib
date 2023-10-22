@@ -2,6 +2,15 @@
 
 mergeInto(LibraryManager.library, {
     WebBrowserVrm0Open: function () {
+        // TODO: more elegant code
+        if (!window.vrmDowngraderObjectUrls) {
+            window.vrmDowngraderObjectUrls = [];
+        }
+        for (const objectUrl of window.vrmDowngraderObjectUrls) {
+            URL.revokeObjectURL(objectUrl);
+        }
+        window.vrmDowngraderObjectUrls = [];
+
         const fileInputId = "vrm1-file-input";
         var fileInput = document.getElementById(fileInputId);
         if (!fileInput) {
@@ -16,13 +25,24 @@ mergeInto(LibraryManager.library, {
             event.target.value = null;
         };
         fileInput.onchange = function (event) {
-            SendMessage("VrmDowngrader", "WebBrowserVrm0Opened", URL.createObjectURL(event.target.files[0]));
+            var objectUrl = URL.createObjectURL(event.target.files[0]);
+            window.vrmDowngraderObjectUrls.push(objectUrl);
+            SendMessage("VrmDowngrader", "WebBrowserVrm0Opened", objectUrl);
         }
         fileInput.click();
     },
 
     WebBrowserVrm1Save: function (unityBytes, unityBytesLength) {
-        var bytes = new Uint8Array(HEAPU8, unityBytes, unityBytesLength);
+        // TODO: more elegant code
+        if (!window.vrmDowngraderObjectUrls) {
+            window.vrmDowngraderObjectUrls = [];
+        }
+        for (const objectUrl of window.vrmDowngraderObjectUrls) {
+            URL.revokeObjectURL(objectUrl);
+        }
+        window.vrmDowngraderObjectUrls = [];
+
+        var bytes = HEAPU8.subarray(unityBytes, unityBytes + unityBytesLength);
         var blob = new Blob([bytes], { type: "application/octet-stream" });
 
         const downloadAnchorId = "vrm0-download-anchor";
@@ -33,8 +53,9 @@ mergeInto(LibraryManager.library, {
         }
         downloadAnchor.download = "VRM0.vrm";
         downloadAnchor.rel = "noopener";
-        downloadAnchor.href = URL.createObjectURL(blob);
+        var objectUrl = URL.createObjectURL(blob);
+        window.vrmDowngraderObjectUrls.push(objectUrl);
+        downloadAnchor.href = objectUrl;
         downloadAnchor.click();
-        // TODO: dispose blob
     },
 });

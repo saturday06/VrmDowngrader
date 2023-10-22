@@ -2,7 +2,6 @@ using UnityEditor;
 using System.Linq;
 using System.IO;
 using UnityEditor.Build;
-using NUnit.Framework.Constraints;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
@@ -31,7 +30,10 @@ namespace VrmDowngrader.Editor
                 NamedBuildTarget.WebGL,
                 Il2CppCodeGeneration.OptimizeSize
             );
-            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+
+            // 本当はbrotliを有効化したい
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
+
             PlayerSettings.WebGL.debugSymbolMode = WebGLDebugSymbolMode.Off;
 
             var build = BuildPipeline.BuildPlayer(

@@ -2,7 +2,7 @@
 
 mergeInto(LibraryManager.library, {
     WebBrowserVrm0Open: function () {
-        const fileInputId = "file-input";
+        const fileInputId = "vrm1-file-input";
         var fileInput = document.getElementById(fileInputId);
         if (!fileInput) {
             fileInput = document.createElement("input");
@@ -20,6 +20,7 @@ mergeInto(LibraryManager.library, {
         }
         fileInput.click();
     },
+
     WebBrowserVrm1Save: function (unityBytes, unityBytesLength) {
         var bytes = new Uint8Array(HEAPU8, unityBytes, unityBytesLength);
         var blob = new Blob([bytes], { type: "application/octet-stream" });
@@ -34,5 +35,6 @@ mergeInto(LibraryManager.library, {
         downloadAnchor.rel = "noopener";
         downloadAnchor.href = URL.createObjectURL(blob);
         downloadAnchor.click();
+        // TODO: dispose blob
     },
 });

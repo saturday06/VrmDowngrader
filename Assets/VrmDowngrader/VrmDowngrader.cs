@@ -137,7 +137,6 @@ namespace VrmDowngrader
             );
             if (string.IsNullOrEmpty(path))
             {
-                SaveButton.SetEnabled(true);
                 return;
             }
             File.WriteAllBytes(path, _vrm0Bytes);

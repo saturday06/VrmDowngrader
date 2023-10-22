@@ -183,6 +183,10 @@ namespace VrmDowngrader
 
         private void Start()
         {
+            // runInBackground = falseだと、WebGLでは起動後にフォーカスがない場合中途半端にUIが出た状態になる。
+            // プロジェクトの設定としてはrunInBackground = trueとしておき、起動後にfalseにする。
+            Application.runInBackground = false;
+
             OpenButton.clicked += () =>
             {
                 try

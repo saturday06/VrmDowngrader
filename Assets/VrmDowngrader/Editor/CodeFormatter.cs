@@ -15,30 +15,20 @@ namespace VrmDowngrader.Editor
 
             try
             {
+                var dotnetFileName = "C:\\Program Files\\dotnet\\dotnet.exe";
                 using var process = Process.Start(
                     new ProcessStartInfo
                     {
-                        FileName = "dotnet",
+                        FileName = dotnetFileName,
                         ArgumentList = { "csharpier", assetPath },
                         UseShellExecute = false,
                         CreateNoWindow = true,
                     }
                 );
             }
-            catch (Win32Exception e)
+            catch (Win32Exception)
             {
-#if UNITY_EDITOR_OSX
-                if (e.NativeErrorCode == 2)
-                {
-                    return;
-                }
-#elif UNITY_EDITOR_WIN
-                if (e.NativeErrorCode == 2)
-                {
-                    return;
-                }
-#endif
-                throw e;
+                // TODO: 触る環境が増えたら考える
             }
         }
     }

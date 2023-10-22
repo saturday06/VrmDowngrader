@@ -13,10 +13,14 @@ namespace VrmDowngrader.Editor
         public static void DoRelease()
         {
             var buildFolderName = "Build";
-            Directory.Delete(
-                Path.Combine(Application.dataPath, "..", buildFolderName),
-                recursive: true
-            );
+            try
+            {
+                Directory.Delete(
+                    Path.Combine(Application.dataPath, "..", buildFolderName),
+                    recursive: true
+                );
+            }
+            catch (DirectoryNotFoundException) { }
 
             PlayerSettings.SetManagedStrippingLevel(
                 BuildTargetGroup.WebGL,

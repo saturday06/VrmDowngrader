@@ -9,6 +9,17 @@
         margin: 0;
         padding: 0;
         border: none;
+        transform: none;
+        background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}};
+      }
+      #unity-container, #unity-canvas {
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
+        width: 100%;
+        height: 100%;
         background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}};
       }
     </style>
@@ -22,37 +33,8 @@
 #if SHOW_DIAGNOSTICS
     <script src="<<<TemplateData/diagnostics.js>>>"></script>
 #endif
-    <div id="unity-container"
-      class="unity-desktop"
-      style="
-        position: absolute;
-        left: 0px;
-        right: 0px;
-        top: 0px;
-        bottom: 0px;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        transform: none;
-        background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}};
-      ">
-      <canvas
-        id="unity-canvas"
-        style="
-          position: absolute;
-          left: 0px;
-          right: 0px;
-          top: 0px;
-          bottom: 0px;
-          width: 100%;
-          height: 100%;
-          margin: 0;
-          padding: 0;
-          transform: none;
-          background: {{{ BACKGROUND_FILENAME ? 'url(\'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : BACKGROUND_COLOR }}};
-        "
-        tabindex="-1">
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" tabindex="-1">
       </canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>

@@ -41,14 +41,14 @@ namespace VrmDowngrader
 
         private async Task OnOpenButtonClicked(byte[] vrm1Bytes)
         {
-            if (_opening)
-            {
-                return;
-            }
-            _opening = true;
-
             try
             {
+                if (_opening)
+                {
+                    return;
+                }
+                _opening = true;
+
                 ErrorMessageLabel.text = "";
                 var logoLabel = GetComponent<UIDocument>().rootVisualElement.Q<Label>();
                 logoLabel.text = "";

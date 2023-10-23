@@ -82,8 +82,23 @@ csharp_preserve_single_line_statements = false
 # undocumented
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 
+# ReSharper properties
+resharper_csharp_empty_block_style = together_same_line
+
 # CSharpierとの互換設定ここまで
 # -----------------------------------------------------
+
+# 以下、個人的な設定
+
+# ReSharper properties
+resharper_braces_redundant = false
+
+# ReSharper inspection severities
+resharper_arguments_style_named_expression_highlighting = none
+resharper_remove_redundant_braces_highlighting = none
+
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0011
+csharp_prefer_braces = true
 
 [*.asmdef]
 end_of_line = crlf

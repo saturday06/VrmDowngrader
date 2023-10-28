@@ -1,13 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
-using UnityEngine.Scripting;
-using UnityEngine.UIElements;
 using UniVRM10;
 using VRM;
 using VRMShaders;

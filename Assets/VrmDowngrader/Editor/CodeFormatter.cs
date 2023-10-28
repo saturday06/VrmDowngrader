@@ -87,17 +87,23 @@ namespace VrmDowngrader.Editor
                 process.OutputDataReceived += (_, args) =>
                 {
                     if (args.Data != null)
+                    {
                         output.AppendLine(args.Data);
+                    }
                 };
                 process.ErrorDataReceived += (_, args) =>
                 {
                     if (args.Data != null)
+                    {
                         error.AppendLine(args.Data);
+                    }
                 };
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
                 while (!process.WaitForExit(0))
+                {
                     await Task.Delay(100);
+                }
             }
             catch (Win32Exception) { }
 

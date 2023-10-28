@@ -19,7 +19,26 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 24808652800
-    m_Localized: Open VRM1
+    m_Localized: Open VRM1.0 file
+    m_Metadata:
+      m_Items: []
+  - m_Id: 130515796885504
+    m_Localized: Loading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 130591311134720
+    m_Localized: Reset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 130753056079872
+    m_Localized: Save VRM file downgraded to VRM0.0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 130926020788224
+    m_Localized: "- \rDowngrade the VRM1.0 model version to VRM0.0.\n- The entire
+      conversion process is performed in the browser, and no data is leaked outside
+      the system. If you are concerned, conversion can be performed while disconnected
+      from the Internet."
     m_Metadata:
       m_Items: []
   references:

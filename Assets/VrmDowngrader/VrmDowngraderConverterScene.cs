@@ -4,8 +4,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
+using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
@@ -28,6 +29,13 @@ namespace VrmDowngrader
 
         private Button ResetButton =>
             _resetButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("ResetButton");
+
+        private Label? _additionalMessageLabel;
+
+        private Label AdditionalMessageLabel =>
+            _additionalMessageLabel ??= GetComponent<UIDocument>().rootVisualElement.Q<Label>(
+                "AdditionalMessageLabel"
+            );
 
         private Label? _errorMessageLabel;
 
@@ -54,13 +62,15 @@ namespace VrmDowngrader
                 ErrorMessageLabel.text = "";
                 var logoLabel = GetComponent<UIDocument>().rootVisualElement.Q<Label>();
                 logoLabel.text = "";
-                OpenButton.text = "loading...";
+                OpenButton.text = LocalizationSettings.StringDatabase.GetLocalizedString(
+                    LocalizationTable.StringTableName,
+                    "LOADING"
+                );
                 await WebGL.WaitForNextFrame();
 
                 _vrm0Bytes = await Vrm1ToVrm0Converter.Convert(vrm1Bytes);
 
                 OpenButton.text = "Open VRM1";
-                ErrorMessageLabel.text = "LoadPathAsync is null";
 
                 Debug.LogFormat("エクスポートしました {0} bytes", _vrm0Bytes.Length);
 
@@ -74,7 +84,10 @@ namespace VrmDowngrader
 
                 OpenButton.style.display = DisplayStyle.Flex;
                 OpenButton.SetEnabled(true);
-                OpenButton.text = "Open VRM1";
+                OpenButton.text = LocalizationSettings.StringDatabase.GetLocalizedString(
+                    LocalizationTable.StringTableName,
+                    "OPEN_VRM1"
+                );
                 ErrorMessageLabel.text = e.ToString();
                 return;
             }
@@ -166,6 +179,10 @@ namespace VrmDowngrader
             // プロジェクトの設定としてはrunInBackground = trueとしておき、起動後にfalseにする。
             Application.runInBackground = false;
 
+            OpenButton.text = LocalizationSettings.StringDatabase.GetLocalizedString(
+                LocalizationTable.StringTableName,
+                "OPEN_VRM1"
+            );
             OpenButton.clicked += () =>
             {
                 try
@@ -192,6 +209,10 @@ namespace VrmDowngrader
                     ErrorMessageLabel.text = e.ToString();
                 }
             };
+            SaveButton.text = LocalizationSettings.StringDatabase.GetLocalizedString(
+                LocalizationTable.StringTableName,
+                "SAVE_VRM0"
+            );
             SaveButton.clicked += () =>
             {
                 try
@@ -203,10 +224,19 @@ namespace VrmDowngrader
                     Debug.LogException(e);
                 }
             };
+            ResetButton.text = LocalizationSettings.StringDatabase.GetLocalizedString(
+                LocalizationTable.StringTableName,
+                "RESET"
+            );
             ResetButton.clicked += () =>
             {
                 ResetScene();
             };
+
+            AdditionalMessageLabel.text = LocalizationSettings.StringDatabase.GetLocalizedString(
+                LocalizationTable.StringTableName,
+                "NO_DATA_TRANSFER_MESSAGE"
+            );
         }
     }
 }

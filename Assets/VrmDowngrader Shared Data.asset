@@ -19,6 +19,22 @@ MonoBehaviour:
     m_Key: OPEN_VRM1
     m_Metadata:
       m_Items: []
+  - m_Id: 130515796885504
+    m_Key: LOADING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 130591311134720
+    m_Key: RESET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 130753056079872
+    m_Key: SAVE_VRM0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 130926020788224
+    m_Key: NO_DATA_TRANSFER_MESSAGE
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

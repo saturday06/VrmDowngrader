@@ -4,40 +4,16 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Codice.Client.BaseCommands.CheckIn;
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.Experimental;
+using System.Linq;
 
 namespace VrmDowngrader.Editor
 {
-    public class CodeFormatter : AssetPostprocessor
+    public class CodeFormatter : AssetsModifiedProcessor
     {
         public static readonly string DotnetFileName = "C:\\Program Files\\dotnet\\dotnet.exe"; // TODO: 触る環境が増えたら考える
-
-        private void OnPreprocessAsset()
-        {
-            if (!assetPath.StartsWith("Assets/") || !assetPath.EndsWith(".cs"))
-            {
-                return;
-            }
-
-            var processStartInfo = new ProcessStartInfo
-            {
-                FileName = DotnetFileName,
-                ArgumentList = { "csharpier", assetPath },
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            try
-            {
-                using var process = Process.Start(processStartInfo);
-                process.WaitForExit();
-            }
-            catch (Win32Exception)
-            {
-                // TODO: 触る環境が増えたら考える
-            }
-        }
 
         [MenuItem("Tools/Reformat & Apply Syntax Style with JetBrains CleanupCode")]
         public static async void ReformatAndApplySyntaxStyle()
@@ -109,6 +85,55 @@ namespace VrmDowngrader.Editor
 
             UnityEngine.Debug.Log($"Output={output}");
             UnityEngine.Debug.Log($"Error={error}");
+        }
+
+        protected override void OnAssetsModified(
+            string[] changedAssets,
+            string[] addedAssets,
+            string[] deletedAssets,
+            AssetMoveInfo[] movedAssets
+        )
+        {
+            var remainingAssetPaths = changedAssets
+                .Concat(addedAssets)
+                .Where(assetPath => assetPath.EndsWith(".cs"))
+                .Distinct()
+                .ToArray();
+            while (remainingAssetPaths.Length > 0)
+            {
+                const int assetPathCountAtOneTime = 20;
+                var formattingAssetPaths = remainingAssetPaths
+                    .Take(assetPathCountAtOneTime)
+                    .ToArray();
+                remainingAssetPaths = remainingAssetPaths.Skip(assetPathCountAtOneTime).ToArray();
+                var processStartInfo = new ProcessStartInfo
+                {
+                    FileName = DotnetFileName,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    ArgumentList = { "dotnet", "csharpier" }
+                };
+                foreach (var formattingAssetPath in formattingAssetPaths)
+                {
+                    processStartInfo.ArgumentList.Add(formattingAssetPath);
+                }
+
+                try
+                {
+                    using var process = Process.Start(processStartInfo);
+                    process.WaitForExit();
+                }
+                catch (Win32Exception)
+                {
+                    // TODO: 触る環境が増えたら考える
+                    throw;
+                }
+
+                foreach (var formattingAssetPath in formattingAssetPaths)
+                {
+                    ReportAssetChanged(formattingAssetPath);
+                }
+            }
         }
     }
 }

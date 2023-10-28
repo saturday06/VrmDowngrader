@@ -8,9 +8,6 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
-using UniVRM10;
-using VRM;
-using VRMShaders;
 
 namespace VrmDowngrader
 {
@@ -186,7 +183,7 @@ namespace VrmDowngrader
 #elif UNITY_WEBGL
                     WebBrowserVrm0Open();
 #else
-                    // TODO:
+#warning Not Implemented
 #endif
                 }
                 catch (Exception e)

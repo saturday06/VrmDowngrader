@@ -15,21 +15,25 @@ using VRMShaders;
 namespace VrmDowngrader
 {
     [RequireComponent(typeof(UIDocument))]
-    public class VrmDowngrader : MonoBehaviour
+    public class VrmDowngraderConverterScene : MonoBehaviour
     {
         private Button? _openButton;
+
         private Button OpenButton =>
             _openButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("OpenButton");
 
         private Button? _saveButton;
+
         private Button SaveButton =>
             _saveButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("SaveButton");
 
         private Button? _resetButton;
+
         private Button ResetButton =>
             _resetButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("ResetButton");
 
         private Label? _errorMessageLabel;
+
         private Label ErrorMessageLabel =>
             _errorMessageLabel ??= GetComponent<UIDocument>().rootVisualElement.Q<Label>(
                 "ErrorMessageLabel"
@@ -47,6 +51,7 @@ namespace VrmDowngrader
                 {
                     return;
                 }
+
                 _opening = true;
 
                 ErrorMessageLabel.text = "";
@@ -62,7 +67,7 @@ namespace VrmDowngrader
                 Vrm10Instance vrm10Instance;
                 vrm10Instance = await Vrm10.LoadBytesAsync(
                     vrm1Bytes,
-                    canLoadVrm0X: false,
+                    false,
                     showMeshes: true,
                     awaitCaller: new ImmediateCaller(),
                     ct: cancellationToken
@@ -74,6 +79,7 @@ namespace VrmDowngrader
                     ErrorMessageLabel.text = "LoadPathAsync is null";
                     return;
                 }
+
                 OpenButton.style.display = DisplayStyle.None;
                 Debug.Log("インポートはうまくいきました");
 
@@ -139,6 +145,7 @@ namespace VrmDowngrader
             {
                 return;
             }
+
             File.WriteAllBytes(path, _vrm0Bytes);
 #elif UNITY_WEBGL
             WebBrowserVrm1Save(_vrm0Bytes, _vrm0Bytes.Length);
@@ -178,8 +185,10 @@ namespace VrmDowngrader
                             ResetScene();
                             return;
                         }
+
                         vrm1Bytes = unityWebRequest.downloadHandler.data;
                     }
+
                     await OnOpenButtonClicked(vrm1Bytes);
                 },
                 CancellationToken.None,
@@ -192,7 +201,7 @@ namespace VrmDowngrader
         {
             // 不要なメモリを解放したいが、正直なんもわからんのでシーン遷移してUnloadUnusedAssetsをしてしまう
             // TODO: プログラマとしての矜持は無いのか!!!???
-            SceneManager.LoadScene(SceneBuildIndex.CleanupScene);
+            SceneManager.LoadScene(SceneBuildIndex.VrmDowngraderCleanupScene);
         }
 
         private void Start()
@@ -212,7 +221,8 @@ namespace VrmDowngrader
                         ResetScene();
                         return;
                     }
-                    var vrm1Bytes = System.IO.File.ReadAllBytes(path);
+
+                    var vrm1Bytes = File.ReadAllBytes(path);
                     _ = OnOpenButtonClicked(vrm1Bytes);
 #elif UNITY_WEBGL
                     WebBrowserVrm0Open();

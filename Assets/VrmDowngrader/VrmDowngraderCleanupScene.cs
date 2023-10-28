@@ -3,13 +3,13 @@ using UnityEngine.SceneManagement;
 
 namespace VrmDowngrader
 {
-    public class Cleanup : MonoBehaviour
+    public class VrmDowngraderCleanupScene : MonoBehaviour
     {
         private void Start()
         {
             Resources.UnloadUnusedAssets().completed += _ =>
             {
-                SceneManager.LoadScene(SceneBuildIndex.VrmDowngraderScene);
+                SceneManager.LoadScene(SceneBuildIndex.VrmDowngraderConverterScene);
             };
         }
     }

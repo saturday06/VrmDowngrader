@@ -4,7 +4,8 @@ namespace VrmDowngrader
 {
     public class SceneBuildIndex
     {
-        internal const int VrmDowngraderScene = 0;
-        internal const int CleanupScene = 1;
+        internal const int VrmDowngraderInitializationScene = 0;
+        internal const int VrmDowngraderConverterScene = 1;
+        internal const int VrmDowngraderCleanupScene = 2;
     }
 }

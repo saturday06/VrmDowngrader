@@ -23,11 +23,13 @@ namespace VrmDowngrader
             {
                 return;
             }
+
             var scene = EditorBuildSettings.scenes.FirstOrDefault(scene => scene.enabled);
             if (scene == null)
             {
                 return;
             }
+
             EditorSceneManager.OpenScene(scene.path);
         }
 
@@ -81,6 +83,7 @@ namespace VrmDowngrader
                                     $"EditorBuildSettingsに登録されているシーン {scene.path} が見つかりません"
                                 );
                             }
+
                             return (asset.name, index);
                         }
                     )
@@ -90,11 +93,13 @@ namespace VrmDowngrader
                 {
                     throw new InvalidDataException($"シーン名に英数字以外が含まれています: [{sceneName}]");
                 }
+
                 sceneBuildIndexSourceBuilder.Append(
                     $"        internal const int {sceneName} = {index};"
                 );
                 sceneBuildIndexSourceBuilder.AppendLine();
             }
+
             sceneBuildIndexSourceBuilder.Append("    }");
             sceneBuildIndexSourceBuilder.AppendLine();
             sceneBuildIndexSourceBuilder.Append("}");

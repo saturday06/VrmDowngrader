@@ -6,9 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/VrmDowngrader/VrmDowngraderScene.unity
+    path: Assets/VrmDowngrader/VrmDowngraderInitializationScene.unity
+    guid: c49706a7d9d936b40945d1ea6d2f2172
+  - enabled: 1
+    path: Assets/VrmDowngrader/VrmDowngraderConverterScene.unity
     guid: 00ed2cec47915f244b685954e97eada8
   - enabled: 1
-    path: Assets/VrmDowngrader/CleanupScene.unity
+    path: Assets/VrmDowngrader/VrmDowngraderCleanupScene.unity
     guid: ae16a4adb09534d3a8c68f3025e75e81
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 27175d210e178514da87287464f464e2, type: 2}
+    com.unity.localization.settings: {fileID: 11400000, guid: 203745153c9ca8240988e251ca0f9905, type: 2}

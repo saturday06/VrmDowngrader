@@ -146,4 +146,5 @@ indent_size = 1
 
 [*.{asset,meta,unity}]
 indent_size = unset
+insert_final_newline = unset
 trim_trailing_whitespace = unset

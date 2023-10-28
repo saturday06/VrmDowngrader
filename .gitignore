@@ -12,3 +12,7 @@
 /UpgradeLog.htm
 /mono_crash.*.json
 /BUILD/
+
+# https://forum.unity.com/threads/link-xml-part-of-version-control.1227360/#post-8190567
+/Assets/AddressableAssetsData/link.xml
+/Assets/AddressableAssetsData/link.xml.meta

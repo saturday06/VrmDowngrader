@@ -9,7 +9,16 @@ indent_style = space
 tab_width = 4
 trim_trailing_whitespace = true
 
-[{*.{blend,gif,ico,jpg,png,pptx,asset,unity,tss,uss,uxml,xsd},/Assets/VrmDowngrader/Fonts/Noto_Sans_JP/**}]
+[*.{blend,gif,ico,jpg,png,pptx,tss,uss,uxml,xsd}]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
+[/Assets/VrmDowngrader/Fonts/Noto_Sans_JP/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
@@ -135,6 +144,6 @@ indent_style = tab
 [/LICENSE]
 indent_size = 1
 
-[*.meta]
+[*.{asset,meta,unity}]
 indent_size = unset
 trim_trailing_whitespace = unset

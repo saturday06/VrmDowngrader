@@ -38,7 +38,8 @@ namespace VrmDowngrader.Editor
                     "run",
                     "jb",
                     "CleanupCode",
-                    "--profile=Built-in: Reformat & Apply Syntax Style",
+                    // "--profile=Built-in: Reformat & Apply Syntax Style",
+                    "--profile=Built-in: Full Cleanup",
                     slnPath
                 },
                 RedirectStandardOutput = true,

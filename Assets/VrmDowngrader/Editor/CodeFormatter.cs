@@ -149,7 +149,6 @@ namespace VrmDowngrader.Editor
                 catch (Win32Exception)
                 {
                     // TODO: 触る環境が増えたら考える
-                    throw;
                     return;
                 }
 

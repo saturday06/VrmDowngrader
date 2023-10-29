@@ -54,8 +54,15 @@ public class Vrm1ToVrm0Converter
             vrm10Instance.Vrm.Expression,
             allSharedMaterials
         );
-        ConvertFirstPerson(vrm10Instance.Vrm.FirstPerson);
-        ConvertLookAt(vrm10Instance.Vrm.LookAt);
+
+        var vrm0FirstPersonComponent = vrm10Instance.gameObject.AddComponent<VRMFirstPerson>();
+        var vrm0LookAtHeadComponent = vrm10Instance.gameObject.AddComponent<VRMLookAtHead>();
+        ConvertFirstPersonLookAt(
+            vrm10Instance.Vrm.FirstPerson,
+            vrm10Instance.Vrm.LookAt,
+            vrm0FirstPersonComponent,
+            vrm0LookAtHeadComponent
+        );
 
         Debug.Log("エクスポートします");
         var configuration = new GltfExportSettings();
@@ -68,9 +75,29 @@ public class Vrm1ToVrm0Converter
         return exportingGltfData.ToGlbBytes();
     }
 
-    private static void ConvertLookAt(VRM10ObjectLookAt vrm1LookAt) { }
-
-    private static void ConvertFirstPerson(VRM10ObjectFirstPerson vrm1FirstPerson) { }
+    private static void ConvertFirstPersonLookAt(
+        VRM10ObjectFirstPerson vrm1FirstPerson,
+        VRM10ObjectLookAt vrm1LookAt,
+        VRMFirstPerson vrm0FirstPerson,
+        VRMLookAtHead vrm0LookAt
+    )
+    {
+        vrm0FirstPerson.Reset();
+        vrm0FirstPerson.FirstPersonOffset = vrm1LookAt.OffsetFromHead; // TODO: ワールド方向だった気がする
+        switch (vrm1LookAt.LookAtType)
+        {
+            case UniGLTF.Extensions.VRMC_vrm.LookAtType.bone:
+                // vrm0LookAt.gameObject.AddComponent<VRMLookAtBoneApplyer>().OnImported(context);
+                break;
+            case UniGLTF.Extensions.VRMC_vrm.LookAtType.expression:
+                // vrm0LookAt.gameObject.AddComponent<VRMLookAtBlendShapeApplyer>().OnImported(context);
+                break;
+        }
+        foreach (var renderer in vrm1FirstPerson.Renderers)
+        {
+            //
+        }
+    }
 
     private static BlendShapeAvatar ConvertExpression(
         VRM10ObjectExpression vrm1Expression,

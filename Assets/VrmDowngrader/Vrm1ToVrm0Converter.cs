@@ -23,14 +23,10 @@ public class Vrm1ToVrm0Converter
     public static async Task<byte[]> Convert(byte[] vrm1Bytes)
     {
         Debug.Log("開始");
-        var cancellationTokenSource = new CancellationTokenSource();
-        var cancellationToken = cancellationTokenSource.Token;
         var vrm10Instance = await Vrm10.LoadBytesAsync(
             vrm1Bytes,
-            false,
-            showMeshes: true,
-            awaitCaller: new ImmediateCaller(),
-            ct: cancellationToken
+            canLoadVrm0X: false,
+            showMeshes: true
         );
         if (vrm10Instance == null)
         {

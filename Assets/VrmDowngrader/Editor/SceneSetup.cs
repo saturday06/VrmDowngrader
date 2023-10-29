@@ -107,7 +107,7 @@ namespace VrmDowngrader
             sceneBuildIndexSourceBuilder.AppendLine();
 
             var sceneBuildIndexSourcePath = Path.Combine(
-                UnityEngine.Application.dataPath,
+                Application.dataPath,
                 "VrmDowngrader",
                 "SceneBuildIndex.g.cs"
             );

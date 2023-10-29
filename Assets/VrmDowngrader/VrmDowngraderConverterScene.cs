@@ -10,43 +10,46 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace VrmDowngrader
 {
     [RequireComponent(typeof(UIDocument))]
     public class VrmDowngraderConverterScene : MonoBehaviour
     {
+        private Label? _additionalMessageLabel;
+
+        private Label? _errorMessageLabel;
         private Button? _openButton;
+
+        private bool _opening;
+
+        private Button? _resetButton;
+
+        private Button? _saveButton;
+
+        private byte[]? _vrm0Bytes;
 
         private Button OpenButton =>
             _openButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("OpenButton");
 
-        private Button? _saveButton;
-
         private Button SaveButton =>
             _saveButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("SaveButton");
 
-        private Button? _resetButton;
-
         private Button ResetButton =>
             _resetButton ??= GetComponent<UIDocument>().rootVisualElement.Q<Button>("ResetButton");
-
-        private Label? _additionalMessageLabel;
 
         private Label AdditionalMessageLabel =>
             _additionalMessageLabel ??= GetComponent<UIDocument>().rootVisualElement.Q<Label>(
                 "AdditionalMessageLabel"
             );
 
-        private Label? _errorMessageLabel;
-
         private Label ErrorMessageLabel =>
             _errorMessageLabel ??= GetComponent<UIDocument>().rootVisualElement.Q<Label>(
                 "ErrorMessageLabel"
             );
-
-        private byte[]? _vrm0Bytes;
-
-        private bool _opening = false;
 
         private async Task OnOpenButtonClicked(byte[] vrm1Bytes)
         {
@@ -89,7 +92,6 @@ namespace VrmDowngrader
                     "OPEN_VRM1"
                 );
                 ErrorMessageLabel.text = e.ToString();
-                return;
             }
             finally
             {
@@ -104,12 +106,7 @@ namespace VrmDowngrader
                 return;
             }
 #if UNITY_EDITOR
-            var path = UnityEditor.EditorUtility.SaveFilePanel(
-                "Save VRM0",
-                "",
-                "output.vrm",
-                "vrm"
-            );
+            var path = EditorUtility.SaveFilePanel("Save VRM0", "", "output.vrm", "vrm");
             if (string.IsNullOrEmpty(path))
             {
                 return;
@@ -188,7 +185,7 @@ namespace VrmDowngrader
                 try
                 {
 #if UNITY_EDITOR
-                    var path = UnityEditor.EditorUtility.OpenFilePanel("Open VRM1", "", "vrm");
+                    var path = EditorUtility.OpenFilePanel("Open VRM1", "", "vrm");
                     if (string.IsNullOrEmpty(path))
                     {
                         ResetScene();

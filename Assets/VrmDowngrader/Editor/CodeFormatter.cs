@@ -1,12 +1,13 @@
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Experimental;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace VrmDowngrader.Editor
 {
@@ -14,10 +15,14 @@ namespace VrmDowngrader.Editor
     {
         public static readonly string DotnetFileName = "C:\\Program Files\\dotnet\\dotnet.exe"; // TODO: 触る環境が増えたら考える
 
+        /// <summary>
+        ///     JetBrains CleanupCode を実行します。
+        ///     asyncにするとコードフォーマット中にコンパイルが走って大変なことになるので同期的に実行します。
+        /// </summary>
         [MenuItem("Tools/Reformat & Apply Syntax Style with JetBrains CleanupCode")]
-        public static async void ReformatAndApplySyntaxStyle()
+        public static void ReformatAndApplySyntaxStyle()
         {
-            UnityEngine.Debug.Log("Start Cleanup");
+            Debug.Log("CleanupCode Start");
 
             // フォルダ名 + ".sln" ができるはず
             var slnPath =
@@ -25,7 +30,7 @@ namespace VrmDowngrader.Editor
                 + ".sln";
             if (!File.Exists(slnPath))
             {
-                UnityEngine.Debug.LogError($"No {slnPath}");
+                Debug.LogError($"No {slnPath}");
                 return;
             }
 
@@ -38,8 +43,8 @@ namespace VrmDowngrader.Editor
                     "run",
                     "jb",
                     "CleanupCode",
-                    "--profile=Built-in: Reformat & Apply Syntax Style",
-                    // "--profile=Built-in: Full Cleanup",
+                    // "--profile=Built-in: Reformat & Apply Syntax Style",
+                    "--profile=Built-in: Full Cleanup",
                     slnPath
                 },
                 RedirectStandardOutput = true,
@@ -50,13 +55,21 @@ namespace VrmDowngrader.Editor
 
             var output = new StringBuilder();
             var error = new StringBuilder();
+            int? exitCode = null;
+            Exception? exception = null;
             try
             {
+                EditorUtility.DisplayProgressBar(
+                    "JetBrains CleanupCode",
+                    "JetBrains CleanupCodeを実行しています",
+                    0
+                );
+
                 using var process = new Process();
                 process.StartInfo = processStartInfo;
                 if (!process.Start())
                 {
-                    UnityEngine.Debug.LogError($"Failed to start {DotnetFileName}");
+                    Debug.LogError($"Failed to start {DotnetFileName}");
                     return;
                 }
 
@@ -76,15 +89,25 @@ namespace VrmDowngrader.Editor
                 };
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                while (!process.WaitForExit(0))
-                {
-                    await Task.Delay(100);
-                }
+                process.WaitForExit();
+                exitCode = process.ExitCode;
             }
-            catch (Win32Exception) { }
+            catch (Win32Exception e)
+            {
+                exception = e;
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
 
-            UnityEngine.Debug.Log($"Output={output}");
-            UnityEngine.Debug.Log($"Error={error}");
+            Debug.Log($"CleanupCode Completed ExitCode={exitCode}");
+            Debug.Log($"CleanupCode Output={output}");
+            Debug.Log($"CleanupCode Error={error}");
+            if (exception != null)
+            {
+                Debug.Log($"Cleanup Exception={exception}");
+            }
         }
 
         protected override void OnAssetsModified(
@@ -127,6 +150,7 @@ namespace VrmDowngrader.Editor
                 {
                     // TODO: 触る環境が増えたら考える
                     throw;
+                    return;
                 }
 
                 foreach (var formattingAssetPath in formattingAssetPaths)

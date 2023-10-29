@@ -1,14 +1,15 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using UniGLTF;
+using UniGLTF.Extensions.VRMC_vrm;
 using UnityEngine;
 using UniVRM10;
 using VRM;
 using VRMShaders;
-using UniGLTF.Extensions.VRMC_vrm;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
 using VRMShaders.VRM10.MToon10.Runtime;
 
 public class Vrm1ToVrm0Converter
@@ -55,7 +56,7 @@ public class Vrm1ToVrm0Converter
         ConvertLookAt(vrm10Instance.Vrm.LookAt);
 
         Debug.Log("エクスポートします");
-        var configuration = new UniGLTF.GltfExportSettings();
+        var configuration = new GltfExportSettings();
         var textureSerializer = new RuntimeTextureSerializer();
         var exportingGltfData = VRMExporter.Export(
             configuration,

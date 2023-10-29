@@ -14,6 +14,12 @@ using VRMShaders.VRM10.MToon10.Runtime;
 
 public class Vrm1ToVrm0Converter
 {
+    /// <summary>
+    /// VRM1のバイト列をVRM0のバイト列に変換します。
+    /// 中間リソースの解放は別途Resources.UnloadUnusedAssets()を呼び出して行うものとする。
+    /// </summary>
+    /// <param name="vrm1Bytes">VRM1のバイト列</param>
+    /// <returns>VRM0のバイト列</returns>
     public static async Task<byte[]> Convert(byte[] vrm1Bytes)
     {
         Debug.Log("開始");

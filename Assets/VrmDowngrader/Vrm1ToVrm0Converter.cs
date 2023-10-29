@@ -7,6 +7,9 @@ using VRM;
 using VRMShaders;
 using UniGLTF.Extensions.VRMC_vrm;
 using System.Text;
+using System.Collections.Generic;
+using System.Linq;
+using VRMShaders.VRM10.MToon10.Runtime;
 
 public class Vrm1ToVrm0Converter
 {
@@ -31,10 +34,25 @@ public class Vrm1ToVrm0Converter
 
         Debug.Log("VRM1のコンポーネントをVRM0で置換していきます");
 
+        var allSharedMaterials = vrm10Instance.gameObject
+            .GetComponentsInChildren<Renderer>()
+            .SelectMany(renderer => renderer.sharedMaterials)
+            .Distinct()
+            .ToArray();
+
         // https://github.com/vrm-c/UniVRM/blob/7e052b19b3c0b4cd02e63159fc37db820729554e/Assets/VRM10/Runtime/Migration/MigrationVrmMeta.cs
         var vrm0Meta = ConvertMeta(vrm10Instance.Vrm.Meta);
         var vrm0MetaComponent = vrm10Instance.gameObject.AddComponent<VRMMeta>();
         vrm0MetaComponent.Meta = vrm0Meta;
+
+        var vrm0BlendShapeProxyComponent =
+            vrm10Instance.gameObject.AddComponent<VRMBlendShapeProxy>();
+        vrm0BlendShapeProxyComponent.BlendShapeAvatar = ConvertExpression(
+            vrm10Instance.Vrm.Expression,
+            allSharedMaterials
+        );
+        ConvertFirstPerson(vrm10Instance.Vrm.FirstPerson);
+        ConvertLookAt(vrm10Instance.Vrm.LookAt);
 
         Debug.Log("エクスポートします");
         var configuration = new UniGLTF.GltfExportSettings();
@@ -45,6 +63,149 @@ public class Vrm1ToVrm0Converter
             textureSerializer
         );
         return exportingGltfData.ToGlbBytes();
+    }
+
+    private static void ConvertLookAt(VRM10ObjectLookAt vrm1LookAt) { }
+
+    private static void ConvertFirstPerson(VRM10ObjectFirstPerson vrm1FirstPerson) { }
+
+    private static BlendShapeAvatar ConvertExpression(
+        VRM10ObjectExpression vrm1Expression,
+        Material[] allSharedMaterials
+    )
+    {
+        var vrm0BlendShapeAvatar = ScriptableObject.CreateInstance<BlendShapeAvatar>();
+        var vrm1PresetToVrm0Preset = new Dictionary<ExpressionPreset, BlendShapePreset>
+        {
+            { ExpressionPreset.happy, BlendShapePreset.Joy },
+            { ExpressionPreset.angry, BlendShapePreset.Angry },
+            { ExpressionPreset.sad, BlendShapePreset.Sorrow },
+            { ExpressionPreset.relaxed, BlendShapePreset.Fun },
+            { ExpressionPreset.surprised, BlendShapePreset.Unknown },
+            { ExpressionPreset.aa, BlendShapePreset.A },
+            { ExpressionPreset.ih, BlendShapePreset.I },
+            { ExpressionPreset.ou, BlendShapePreset.U },
+            { ExpressionPreset.ee, BlendShapePreset.E },
+            { ExpressionPreset.oh, BlendShapePreset.O },
+            { ExpressionPreset.blink, BlendShapePreset.Blink },
+            { ExpressionPreset.blinkLeft, BlendShapePreset.Blink_L },
+            { ExpressionPreset.blinkRight, BlendShapePreset.Blink_R },
+            { ExpressionPreset.lookUp, BlendShapePreset.LookUp },
+            { ExpressionPreset.lookDown, BlendShapePreset.LookDown },
+            { ExpressionPreset.lookLeft, BlendShapePreset.LookLeft },
+            { ExpressionPreset.lookRight, BlendShapePreset.LookRight },
+            { ExpressionPreset.neutral, BlendShapePreset.Neutral },
+        };
+
+        foreach (var (vrm1Preset, vrm1Clip) in vrm1Expression.Clips)
+        {
+            if (!vrm1PresetToVrm0Preset.TryGetValue(vrm1Preset, out var vrm0Preset))
+            {
+                vrm0Preset = BlendShapePreset.Unknown;
+            }
+
+            var vrm0BlendShapeClip = ScriptableObject.CreateInstance<BlendShapeClip>();
+            vrm0BlendShapeClip.Preset = vrm0Preset;
+            vrm0BlendShapeClip.BlendShapeName = vrm1Preset.ToString();
+            vrm0BlendShapeClip.IsBinary = vrm1Clip.IsBinary;
+
+            vrm0BlendShapeClip.Values = vrm1Clip.MorphTargetBindings
+                .Select(
+                    morphTargetBinding =>
+                        new BlendShapeBinding
+                        {
+                            RelativePath = morphTargetBinding.RelativePath,
+                            Index = morphTargetBinding.Index,
+                            Weight = morphTargetBinding.Weight,
+                        }
+                )
+                .ToArray();
+
+            var mtoon0ColorValueNames = new Dictionary<MaterialColorType, string>
+            {
+                { MaterialColorType.color, "_Color" },
+                { MaterialColorType.emissionColor, "_EmissionColor" },
+                { MaterialColorType.shadeColor, "_ShadeColor" },
+                { MaterialColorType.rimColor, "_RimColor" },
+                { MaterialColorType.outlineColor, "_OutlineColor" },
+            };
+
+            var gltfColorValueNames = new Dictionary<MaterialColorType, string>
+            {
+                { MaterialColorType.color, "_Color" },
+                { MaterialColorType.emissionColor, "_EmissionColor" },
+            };
+
+            var vrm0MaterialColorBindings = vrm1Clip.MaterialColorBindings
+                .Select(materialColorBinding =>
+                {
+                    var material = allSharedMaterials.FirstOrDefault(
+                        material => material.name == materialColorBinding.MaterialName
+                    );
+                    var colorValueNames =
+                        material?.shader.name == MToon10Meta.UnityShaderName
+                            ? mtoon0ColorValueNames
+                            : gltfColorValueNames;
+                    colorValueNames.TryGetValue(materialColorBinding.BindType, out var valueName);
+                    if (valueName == null)
+                    {
+                        return null;
+                    }
+                    return new MaterialValueBinding?(
+                        new MaterialValueBinding
+                        {
+                            MaterialName = materialColorBinding.MaterialName,
+                            ValueName = valueName,
+                            TargetValue = materialColorBinding.TargetValue,
+                        }
+                    );
+                })
+                .OfType<MaterialValueBinding>()
+                .ToArray();
+
+            var mtoon0UvValueNames = new[]
+            {
+                "_MainTex_ST",
+                "_ShadeTexture_ST",
+                "_BumpMap_ST",
+                "_ReceiveShadowTexture_ST",
+                "_ShadingGradeTexture_ST",
+                "_RimTexture_ST",
+                "_EmissionMap_ST",
+                "_OutlineWidthTexture_ST",
+                "_UvAnimMaskTexture_ST",
+            };
+
+            var gltfUvValueNames = new[] { "_MainTex_ST", "_BumpMap_ST", "_EmissionMap_ST", };
+
+            var vrm0MaterialUVBindings = vrm1Clip.MaterialUVBindings
+                .SelectMany(materialUvBinding =>
+                {
+                    var material = allSharedMaterials.FirstOrDefault(
+                        material => material.name == materialUvBinding.MaterialName
+                    );
+                    var valueNames =
+                        material?.shader.name == MToon10Meta.UnityShaderName
+                            ? mtoon0UvValueNames
+                            : gltfUvValueNames;
+                    return valueNames.Select(
+                        valueName =>
+                            new MaterialValueBinding
+                            {
+                                MaterialName = materialUvBinding.MaterialName,
+                                ValueName = valueName,
+                                TargetValue = materialUvBinding.ScalingOffset,
+                            }
+                    );
+                })
+                .ToArray();
+            vrm0BlendShapeClip.MaterialValues = vrm0MaterialColorBindings
+                .Concat(vrm0MaterialUVBindings)
+                .ToArray();
+            vrm0BlendShapeAvatar.Clips.Add(vrm0BlendShapeClip);
+        }
+
+        return vrm0BlendShapeAvatar;
     }
 
     private static VRMMetaObject ConvertMeta(VRM10ObjectMeta vrm1Meta)

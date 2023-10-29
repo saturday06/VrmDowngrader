@@ -328,14 +328,11 @@ public class Vrm1ToVrm0Converter
 
         if (otherPermissionStringBuilder.Length > 0)
         {
-            otherPermissionStringBuilder.Insert(
-                0,
-                "The following additional terms and conditions apply\n\n"
-            );
             vrm0Meta.OtherPermissionUrl =
                 "data:text/plain;charset=UTF-8,"
                 + Uri.EscapeUriString(
-                    otherPermissionStringBuilder.ToString().Replace("\r\n", "\n")
+                    "The following additional terms and conditions apply\n\n"
+                        + otherPermissionStringBuilder.ToString().Replace("\r\n", "\n")
                 );
             UnityEngine.Debug.LogFormat(vrm0Meta.OtherPermissionUrl);
         }

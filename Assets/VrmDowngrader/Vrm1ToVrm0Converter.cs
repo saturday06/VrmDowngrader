@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using UniGLTF;
 using UniGLTF.Extensions.VRMC_vrm;
@@ -11,12 +10,13 @@ using UniVRM10;
 using VRM;
 using VRMShaders;
 using VRMShaders.VRM10.MToon10.Runtime;
+using LookAtType = UniGLTF.Extensions.VRMC_vrm.LookAtType;
 
 public class Vrm1ToVrm0Converter
 {
     /// <summary>
-    /// VRM1のバイト列をVRM0のバイト列に変換します。
-    /// 中間リソースの解放は別途Resources.UnloadUnusedAssets()を呼び出して行うものとする。
+    ///     VRM1のバイト列をVRM0のバイト列に変換します。
+    ///     中間リソースの解放は別途Resources.UnloadUnusedAssets()を呼び出して行うものとする。
     /// </summary>
     /// <param name="vrm1Bytes">VRM1のバイト列</param>
     /// <returns>VRM0のバイト列</returns>
@@ -86,13 +86,14 @@ public class Vrm1ToVrm0Converter
         vrm0FirstPerson.FirstPersonOffset = vrm1LookAt.OffsetFromHead; // TODO: ワールド方向だった気がする
         switch (vrm1LookAt.LookAtType)
         {
-            case UniGLTF.Extensions.VRMC_vrm.LookAtType.bone:
+            case LookAtType.bone:
                 // vrm0LookAt.gameObject.AddComponent<VRMLookAtBoneApplyer>().OnImported(context);
                 break;
-            case UniGLTF.Extensions.VRMC_vrm.LookAtType.expression:
+            case LookAtType.expression:
                 // vrm0LookAt.gameObject.AddComponent<VRMLookAtBlendShapeApplyer>().OnImported(context);
                 break;
         }
+
         foreach (var renderer in vrm1FirstPerson.Renderers)
         {
             //
@@ -124,7 +125,7 @@ public class Vrm1ToVrm0Converter
             { ExpressionPreset.lookDown, BlendShapePreset.LookDown },
             { ExpressionPreset.lookLeft, BlendShapePreset.LookLeft },
             { ExpressionPreset.lookRight, BlendShapePreset.LookRight },
-            { ExpressionPreset.neutral, BlendShapePreset.Neutral },
+            { ExpressionPreset.neutral, BlendShapePreset.Neutral }
         };
 
         foreach (var (vrm1Preset, vrm1Clip) in vrm1Expression.Clips)
@@ -146,7 +147,7 @@ public class Vrm1ToVrm0Converter
                         {
                             RelativePath = morphTargetBinding.RelativePath,
                             Index = morphTargetBinding.Index,
-                            Weight = morphTargetBinding.Weight,
+                            Weight = morphTargetBinding.Weight
                         }
                 )
                 .ToArray();
@@ -157,13 +158,13 @@ public class Vrm1ToVrm0Converter
                 { MaterialColorType.emissionColor, "_EmissionColor" },
                 { MaterialColorType.shadeColor, "_ShadeColor" },
                 { MaterialColorType.rimColor, "_RimColor" },
-                { MaterialColorType.outlineColor, "_OutlineColor" },
+                { MaterialColorType.outlineColor, "_OutlineColor" }
             };
 
             var gltfColorValueNames = new Dictionary<MaterialColorType, string>
             {
                 { MaterialColorType.color, "_Color" },
-                { MaterialColorType.emissionColor, "_EmissionColor" },
+                { MaterialColorType.emissionColor, "_EmissionColor" }
             };
 
             var vrm0MaterialColorBindings = vrm1Clip.MaterialColorBindings
@@ -181,12 +182,13 @@ public class Vrm1ToVrm0Converter
                     {
                         return null;
                     }
+
                     return new MaterialValueBinding?(
                         new MaterialValueBinding
                         {
                             MaterialName = materialColorBinding.MaterialName,
                             ValueName = valueName,
-                            TargetValue = materialColorBinding.TargetValue,
+                            TargetValue = materialColorBinding.TargetValue
                         }
                     );
                 })
@@ -203,10 +205,10 @@ public class Vrm1ToVrm0Converter
                 "_RimTexture_ST",
                 "_EmissionMap_ST",
                 "_OutlineWidthTexture_ST",
-                "_UvAnimMaskTexture_ST",
+                "_UvAnimMaskTexture_ST"
             };
 
-            var gltfUvValueNames = new[] { "_MainTex_ST", "_BumpMap_ST", "_EmissionMap_ST", };
+            var gltfUvValueNames = new[] { "_MainTex_ST", "_BumpMap_ST", "_EmissionMap_ST" };
 
             var vrm0MaterialUVBindings = vrm1Clip.MaterialUVBindings
                 .SelectMany(materialUvBinding =>
@@ -224,7 +226,7 @@ public class Vrm1ToVrm0Converter
                             {
                                 MaterialName = materialUvBinding.MaterialName,
                                 ValueName = valueName,
-                                TargetValue = materialUvBinding.ScalingOffset,
+                                TargetValue = materialUvBinding.ScalingOffset
                             }
                     );
                 })
@@ -248,14 +250,17 @@ public class Vrm1ToVrm0Converter
         {
             otherPermissionStringBuilder.AppendLine("- Political or religious use is prohibited.");
         }
+
         if (!vrm1Meta.AntisocialOrHateUsage)
         {
             otherPermissionStringBuilder.AppendLine("- Antisocial or hate use is prohibited.");
         }
+
         if (!vrm1Meta.Redistribution)
         {
             otherPermissionStringBuilder.AppendLine("- Redistribution is prohibited.");
         }
+
         switch (vrm1Meta.Modification)
         {
             case ModificationType.prohibited:
@@ -281,7 +286,7 @@ public class Vrm1ToVrm0Converter
             AvatarPermissionType.everyone => AllowedUser.Everyone,
             AvatarPermissionType.onlySeparatelyLicensedPerson
                 => AllowedUser.ExplicitlyLicensedPerson,
-            _ => AllowedUser.OnlyAuthor,
+            _ => AllowedUser.OnlyAuthor
         };
 
         switch (vrm1Meta.CommercialUsage)
@@ -315,11 +320,13 @@ public class Vrm1ToVrm0Converter
         {
             otherPermissionStringBuilder.AppendLine("- Credit notation is required.");
         }
+
         if (!string.IsNullOrEmpty(vrm1Meta.CopyrightInformation))
         {
             otherPermissionStringBuilder.AppendLine("- Copyright information is as follows");
             otherPermissionStringBuilder.AppendLine(vrm1Meta.CopyrightInformation);
         }
+
         if (!string.IsNullOrEmpty(vrm1Meta.ThirdPartyLicenses))
         {
             otherPermissionStringBuilder.AppendLine("- Third party licenses are as follows");
@@ -334,7 +341,7 @@ public class Vrm1ToVrm0Converter
                     "The following additional terms and conditions apply\n\n"
                         + otherPermissionStringBuilder.ToString().Replace("\r\n", "\n")
                 );
-            UnityEngine.Debug.LogFormat(vrm0Meta.OtherPermissionUrl);
+            Debug.LogFormat(vrm0Meta.OtherPermissionUrl);
         }
 
         return vrm0Meta;

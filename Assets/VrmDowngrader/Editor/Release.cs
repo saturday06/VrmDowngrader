@@ -13,12 +13,10 @@ namespace VrmDowngrader.Editor
         public static void DoRelease()
         {
             var buildFolderName = "Build";
+            var buildFolderFullName = Path.Combine(Application.dataPath, "..", buildFolderName);
             try
             {
-                Directory.Delete(
-                    Path.Combine(Application.dataPath, "..", buildFolderName),
-                    recursive: true
-                );
+                Directory.Delete(buildFolderFullName, recursive: true);
             }
             catch (DirectoryNotFoundException) { }
 
@@ -67,6 +65,10 @@ namespace VrmDowngrader.Editor
 
             if (!Application.isBatchMode)
             {
+                if (Directory.Exists(buildFolderFullName))
+                {
+                    EditorUtility.RevealInFinder(buildFolderFullName);
+                }
                 return;
             }
 

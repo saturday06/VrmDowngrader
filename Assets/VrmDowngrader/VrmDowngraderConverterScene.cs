@@ -224,10 +224,7 @@ namespace VrmDowngrader
                 LocalizationTable.StringTableName,
                 "RESET"
             );
-            ResetButton.clicked += () =>
-            {
-                ResetScene();
-            };
+            ResetButton.clicked += ResetScene;
 
             AdditionalMessageLabel.text = LocalizationSettings.StringDatabase.GetLocalizedString(
                 LocalizationTable.StringTableName,

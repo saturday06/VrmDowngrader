@@ -69,6 +69,7 @@ namespace VrmDowngrader.Editor
                 {
                     EditorUtility.RevealInFinder(buildFolderFullName);
                 }
+
                 return;
             }
 
